@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Enter username and email</h2>
+
+    <form method="post" action="{% url 'user_input' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        {% if errors %}
+            {% for error in errors.values %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+        <button type="submit">Send data</button>
+    </form>
+{% endblock %}

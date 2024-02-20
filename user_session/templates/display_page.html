@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Page for display session user input</h2>
+
+    {% if user_courses %}
+        {% for user_course in user_courses %}
+            <p>User: {{ user_course.user }} | Course: {{ user_course.course_name }}</p>
+        {% endfor %}
+    {% endif %}  
+{% endblock %}
