@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>All Courses</h2>
+  <ul>
+    {% for course in courses %}
+      {% if course.author == request.user or perms.user_session.can_edit_course %}
+        <li>{{ course.course_name }} - <a href="{% url 'edit_course' course.id %}">Edit</a></li>
+      {% else %}
+        <li>{{ course.course_name }}
+      {% endif %}
+    {% endfor %}
+  </ul>
+  <a href="{% url 'add_course' %}">Add New Course</a>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Add Model Permission for {{ model.name }}</h2>
+  <form method="post" action="{% url 'add_model_permission' %}">
+    {% csrf_token %}
+    
+    {# Вставте форму вибору користувача #}
+    {{ user_form.as_p }}
+
+    {# Вставте форму вибору permissions #}
+    {{ form.as_p }}
+
+    <button type="submit">Add Model Permission</button>
+  </form>
+{% endblock %}

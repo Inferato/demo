@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+
+{% block content %}
+    <h2>Enter username and email</h2>
+    It is the {% now "D M y g:i:s" %}
+    {% include "name_snippet.html" with greeting="Test Hello" username=user %}
+
+    {{ context_data | test_format:"<br></br>" }}
+
+    <form method="post" action="{% url 'user_input' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        {% if errors %}
+            {% for error in errors.values %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+        <button type="submit">Send data</button>
+    </form>
+
+{% endblock %}
