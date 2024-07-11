@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load custom_tags %}
+{% load i18n %}
 
 {% block content %}
     <h2>Enter username and email</h2>
@@ -17,7 +18,7 @@
                 <p>{{ error }}</p>
             {% endfor %}
         {% endif %}
-        <button type="submit">Send data</button>
+        <button type="submit">{% trans "Send data" %}</button>
     </form>
 
 {% endblock %}

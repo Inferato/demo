@@ -28,6 +28,7 @@ class SetUserCourseForm(forms.Form):
 
 
 class UserCoursesForm(forms.ModelForm):
+    honey_pot = forms.CharField(widget=forms.HiddenInput, required=False)
     class Meta:
         model = Courses
         fields = ['course_name']

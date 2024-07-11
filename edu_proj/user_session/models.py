@@ -1,10 +1,12 @@
 from django.db import models
+from django.core.files.storage import default_storage
 from django.contrib.auth import get_user_model
 
 
 class Courses(models.Model):
     course_name = models.CharField(max_length=255)
     author = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING, blank=True, null=True)
+    course_image = models.ImageField(storage=default_storage, null=True, blank=True)
 
     class Meta:
         permissions = (

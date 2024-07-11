@@ -1,1 +1,0 @@
-GLOB_VAR = "This is a glob var"

@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,6 +7,21 @@
     <header>
         <div class="header-content">
             <h1>Your Site</h1>
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %} 
+                <div>
+                    <select id="language-select">
+                        {% get_current_language as LANGUAGE_CODE %}
+                        {% get_available_languages as LANGUAGES %}
+                        {% for lang_code, lang_name in LANGUAGES %}
+                        <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                            {{ lang_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button onclick="changeLanguage()">Змінити мову</button>
+                </div>
+                  
 
             {% if user.is_authenticated %}
                 <p>Welcome, {{ user.username }}!</p>
@@ -24,4 +40,12 @@
         {% block content %}{% endblock %}
     </div>
 </body>
+<script type="text/javascript">
+    function changeLanguage() {
+      var selectElement = document.getElementById("language-select");
+      var selectedLanguage = selectElement.value;
+      var url = "{% url 'set_language' %}?language=" + selectedLanguage + "&next={{ request.path }}";
+      window.location.href = url;
+    }
+  </script>
 </html>

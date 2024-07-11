@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -17,6 +18,11 @@ from .mixins import (
     SuperuserRequiredMixin,
     CacheMixin
 )
+from django.utils.translation import gettext_lazy as _
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import boto3
+from django.http import HttpResponse
 # import logging
 
 # logger = logging.getLogger(__name__)
@@ -41,11 +47,17 @@ class InputPage(View):
             # 1 course by ID
             return redirect('display_user_input')
         else:
+            # from django.utils import translation
+            # translation.activate('uk')
             some_data = "<br>Some text</br>"
             return render(request, self.template_name, {'form': create_form(), 'context_data': some_data})
     
     def post(self, request):
+        # from django.utils import translation
+        # translation.activate('uk')
         form = create_form(request_data=request.POST)
+        # breakpoint()
+        print(_("User doesnt exist"))
         if form.is_valid():
             # request.session['user_input'] = form.cleaned_data
             username = form.cleaned_data.get('username')
@@ -54,7 +66,7 @@ class InputPage(View):
             user = User.objects.filter(email=email, username=username).first()
             errors = {}
             if not user:
-                errors['user'] = "User doesnt exist"
+                errors['user'] = _("User doesnt exist")
             
             if not course_name:
                 errors['course_name'] = "Please enter the course name"
@@ -78,8 +90,8 @@ def display_user_courses_view(request):
     return render(request, 'display_page.html', {'user_courses': user_courses})
 
 
-class UserCoursesView(PermissionRequiredMixin, View):
-    permission_required = ('user_session.can_edit_course')
+class UserCoursesView(View):
+    # permission_required = ('user_session.can_edit_course')
     template_name = 'user_courses_form.html'
     
     def get(self, request, course_id=None):
@@ -99,6 +111,8 @@ class UserCoursesView(PermissionRequiredMixin, View):
             form = UserCoursesForm(request.POST)
 
         if form.is_valid():
+            # if form.cleaned_data['honey_pot']:
+            #     return redirect('add_course')
             form.save()
             return redirect('list_courses')
 
@@ -136,8 +150,38 @@ class AddModelPermissionView(UserCoursesPermissionMixin, FormView):
         return redirect('list_courses')
     
 
+def upload_file(request):
+    if request.method == 'POST' and request.FILES['file']:
+        file = request.FILES['file']
+        default_storage.save(file.name, ContentFile(file.read()))
+        return redirect('file_list')
+    return render(request, 'upload.html')
 
-    def add_two_num(a, b):
-        return a+b
+def file_list(request):
+    s3 = boto3.client('s3',
+                      endpoint_url=settings.AWS_S3_ENDPOINT_URL,
+                      aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                      aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                      aws_session_token=None,
+                      config=boto3.session.Config(signature_version='s3v4'),
+                      verify=False
+    )
     
-    add_two_num(2, 5)
+    response = s3.list_objects_v2(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
+    files = []
+    for file in response.get('Contents', []):
+        file_name = file['Key']
+        file_url = s3.generate_presigned_url(
+            'get_object',
+            Params={
+                'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+                'Key': file_name
+            },
+            ExpiresIn=60
+        )
+        files.append({'file_url': file_url, 'file_name':file_name})
+
+    return render(request, 'file_list.html', {'files': files})
+
+def honey_pot(request):
+    return HttpResponse('Hello!')

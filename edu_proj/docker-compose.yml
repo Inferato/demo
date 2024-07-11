@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  django:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app/example
+    depends_on:
+      - postgres
+    environment:
+      - DEBUG=1
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #     - ./certs:/etc/nginx/certs
+  #     - ./static:/app/example/static/
+  #   depends_on:
+  #     - django
+
+  # openssl:
+  #   image: alpine/openssl
+  #   volumes:
+  #     - ./certs:/certs
+  #   command: >
+  #     req -x509 -nodes -newkey rsa:4096 -keyout /certs/nginx.key
+  #     -out /certs/nginx.crt -days 365
+  #     -subj "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN=localhost"
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: superuser
+      POSTGRES_PASSWORD: superuser_password
+      POSTGRES_DB: test_db1
+    ports:
+      - "5432:5432"
+  
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_INIT_BUCKET: ${MINIO_BUCKET_NAME}
+    volumes:
+      - ./data:/data
+    command: server /data

@@ -4,7 +4,10 @@ from .views import (
     display_user_courses_view, 
     UserCoursesView, 
     UserCoursesListView, 
-    AddModelPermissionView
+    AddModelPermissionView,
+    upload_file,
+    file_list,
+    honey_pot,
 )
 
 urlpatterns = [
@@ -15,4 +18,7 @@ urlpatterns = [
     path('courses/add/', UserCoursesView.as_view(), name='add_course'),
     path('courses/<int:course_id>/edit/', UserCoursesView.as_view(), name='edit_course'),
     path('add_model_permission/', AddModelPermissionView.as_view(), name='add_model_permission'),
+    path('upload/', upload_file, name='upload_file'),
+    path('file_list/', file_list, name='file_list'),
+    path('display-form/', honey_pot, name='display_form' )
 ]
